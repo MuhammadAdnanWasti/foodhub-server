@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+   CUSTOMER
+   PROVIDER 
+   ADMIN
+}
+enum Status {
+   ACTIVE
+   SUSPENDED
+
+}
+
+enum OrderStatus {
+  PLACED
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}
+model User {
+    id        String   @id @default(uuid())
+    email     String   @unique
+    name      String
+    password  String 
+    role      Role     @default(CUSTOMER)
+    status    Status   @default(ACTIVE)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    provider ProviderProfiles?
+    orders Orders[]
+    reviews Review[]
+    @@map ("users")
+    @@index([status])
+}
+
+model ProviderProfiles {
+    id          String   @id @default(uuid())
+    userId      String   @unique
+    user       User     @relation(fields: [userId], references: [id])
+    restaurantName String
+    address     String
+    phone       String
+
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    meals Meals[]
+    @@map ("provider_profiles")
+    @@index([userId])
+}
+
+model Meals {
+    id          String   @id @default(uuid())
+    name        String
+    description String
+    price       Float
+    image       String
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    
+    providerId  String
+    provider    ProviderProfiles @relation(fields: [providerId], references: [id])
+    categoryId  String
+    category    Categories @relation(fields: [categoryId], references: [id])
+
+    orders Orders[]
+    reviews Review[]
+   
+    
+
+    @@map ("meals")
+}
+
+
+
+model Categories {
+    id          String   @id @default(uuid())
+    name        String @unique
+    description String
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+      meals Meals[]  
+   
+    
+
+    @@map ("categories")
+}
+
+model Orders {
+    id          String   @id @default(uuid())
+    userId      String
+    user       User     @relation(fields: [userId], references: [id])
+    mealId      String
+    meal       Meals     @relation(fields: [mealId], references: [id])
+    quantity    Int
+    status      OrderStatus @default(PLACED)
+    totalPrice  Float
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    @@map ("orders")
+    @@index([userId])
+    @@index([mealId])
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  mealId String 
+  meal Meals @relation(fields: [mealId], references: [id])
+}
+
