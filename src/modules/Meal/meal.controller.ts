@@ -1,3 +1,4 @@
+import { get } from "node:http";
 import sendResponce from "../../utils/sendResponce";
 import { MealService } from "./meal.service";
 import { Request, Response } from "express";
@@ -23,7 +24,62 @@ const createMeal= async (req: Request, res: Response) => {
         })
     }
 }
+
+const getMeals= async (req: Request, res: Response) => {
+  
+  try {
+    const request = await MealService.getMealsFromDB();
+    if(request.length===0){
+        return res.status(404).json({ message: "Meals not found"})
+    }else{
+        res.status(201).json({
+  "success": true,
+  "message": "Meals retrieved successfully",
+  "data":request
+})  
+        
+    }
+
+  
+  } catch (error: any) {
+     res.status(500).json({
+      success: false,
+      message: error?.message || "Failed to retrieve meals",
+      error: error.message
+    });
+  }
+}
+
+const getMealById=async (req:Request, res:Response) => {
+  
+
+  try {
+    const request = await MealService.getMealById(req.params.id as string) 
+    if(request === null){
+        return res.status(404).json({ message: "Meal not found"})
+    }else{
+        res.status(201).json({
+  "success": true,
+  "message": "Meal retrieved successfully",
+  "data":request
+})  
+        
+    }
+
+  
+  } catch (error: any) {
+     res.status(500).json({
+      success: false,
+      message: error?.message || "Failed to retrieve meal",
+      error: error.message
+    });
+  }
+ 
+}
+
 export const MealController = {
     // Add controller methods here
-    createMeal
+    createMeal,
+    getMeals,
+    getMealById
     };

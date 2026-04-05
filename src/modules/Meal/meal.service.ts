@@ -56,6 +56,31 @@ const createMealInfoDB = async (payLoad: any, userId: string) => {
     return result;
 }
 
-export const MealService = {
-    createMealInfoDB
+const getMealsFromDB = async () => {
+    const meals = await prisma.meals.findMany({
+        include: {
+            category: true,
+            provider: true
+        }
+    });
+    return meals;
 };
+
+const getMealById = async (id: string) => {
+    const meal = await prisma.meals.findUnique({
+        where: { id },      
+        include: {
+            category: true,
+            provider: true          
+
+        }
+    });
+    return meal;
+}
+
+
+export const MealService = {
+    createMealInfoDB,
+    getMealsFromDB,
+    getMealById
+};  
