@@ -58,7 +58,40 @@ const loginUser = async (req: Request, res: Response) => {
     }
 };
 
+const getMe=async (req:Request, res:Response) => {
+  
+
+  try {
+    const userId = (req as any).user.id;
+    const request = await AuthService.getMeById(userId) 
+    if(request === null){
+        return res.status(404).json({ message: "User not found"})
+    }else{
+        res.status(201).json({
+  "success": true,
+  "message": "User retrieved successfully",
+  "data":request
+})  
+        
+    }
+
+  
+  } catch (error: any) {
+     res.status(500).json({
+      success: false,
+      message: error?.message || "Failed to retrieve user",
+      error: error.message
+    });
+  }
+ 
+}
+
+
+
+
+
 export const AuthController = {
     createUser,
-    loginUser
+    loginUser,
+    getMe
 };

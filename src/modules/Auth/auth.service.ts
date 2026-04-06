@@ -121,7 +121,23 @@ const loginUserDB = async (payLoad: any) => {
     return { token, user: userWithoutPassword };
 };
 
+const getMeById = async (id: string) => {
+    const me = await prisma.user.findUnique({
+        where: { id },      
+        include: {
+            orders: true,
+            provider: true, 
+            reviews: true       
+
+        }
+    });
+    
+    const { password, ...userWithoutPassword } = me || {};
+    return userWithoutPassword;
+}
+
 export const AuthService = {
     createUserInfoDB,
-    loginUserDB
+    loginUserDB,
+    getMeById
 };
