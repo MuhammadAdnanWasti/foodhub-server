@@ -78,9 +78,92 @@ const getMealById = async (id: string) => {
     return meal;
 }
 
+const updateMealById = async (id: string, payLoad: any, userId: string | undefined) => {
+    if (!userId) {
+        throw new Error("Authentication required")
+    }
+    const user = await prisma.user.findUnique({
+        where: { id: userId }
+    })
+    if (!user) {
+        throw new Error("User not found")
+    }
+    const providerProfile = await prisma.providerProfiles.findUnique({
+        where: { userId: userId }
+    })
+    if (!providerProfile) {
+        throw new Error("Provider profile not found. Only providers can update meals.")
+    }
+    const meal = await prisma.meals.findUnique({
+        where: { id }
+    });
+    if (!meal) {
+        throw new Error("Meal not found")
+    }
+    if (meal.providerId !== providerProfile.id) {
+        throw new Error("You are not authorized to update this meal")
+    }
+
+    const data: {
+        name?: string
+        description?: string
+        price?: number
+        image?: string
+        categoryId?: string
+    } = {}
+
+    if (payLoad.name !== undefined && payLoad.name !== null) {
+        data.name = String(payLoad.name)
+    }
+    if (payLoad.description !== undefined && payLoad.description !== null) {
+        data.description = String(payLoad.description)
+    }
+    if (payLoad.price !== undefined && payLoad.price !== null) {
+        const p = typeof payLoad.price === "number" ? payLoad.price : parseFloat(String(payLoad.price))
+        if (Number.isNaN(p)) {
+            throw new Error("Invalid price")
+        }
+        data.price = p
+    }
+    if (payLoad.image !== undefined && payLoad.image !== null) {
+        data.image = String(payLoad.image)
+    }
+
+    if (payLoad.categoryName !== undefined && payLoad.categoryName !== null && String(payLoad.categoryName).trim() !== "") {
+        const category = await prisma.categories.findUnique({
+            where: { name: String(payLoad.categoryName) }
+        })
+        if (!category) {
+            throw new Error(`Category "${payLoad.categoryName}" not found. Please create the category first.`)
+        }
+        data.categoryId = category.id
+    } else if (payLoad.categoryId !== undefined && payLoad.categoryId !== null && String(payLoad.categoryId).trim() !== "") {
+        const category = await prisma.categories.findUnique({
+            where: { id: String(payLoad.categoryId) }
+        })
+        if (!category) {
+            throw new Error("Category not found")
+        }
+        data.categoryId = category.id
+    }
+
+    if (Object.keys(data).length === 0) {
+        return prisma.meals.findUnique({
+            where: { id },
+            include: { category: true, provider: true }
+        })
+    }
+
+    return prisma.meals.update({
+        where: { id },
+        data,
+        include: { category: true, provider: true }
+    })
+}
 
 export const MealService = {
     createMealInfoDB,
     getMealsFromDB,
-    getMealById
+    getMealById,
+    updateMealById
 };  

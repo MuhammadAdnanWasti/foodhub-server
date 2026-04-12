@@ -71,15 +71,35 @@ const getMealById=async (req:Request, res:Response) => {
      res.status(500).json({
       success: false,
       message: error?.message || "Failed to retrieve meal",
-      error: error.message
+      error: error?.message
     });
   }
  
 }
 
+const updateMealById=async (req:Request, res:Response) => {
+  
+  try {
+    const request = await MealService.updateMealById(req.params.id as string, req.body,req.user?.id)
+    sendResponce(res,{
+      statusCode:200,
+      success:true,
+      message:"Meal updated successfully",
+      data:request
+  })
+  } catch (error: any) {
+    sendResponce(res,{
+      statusCode:500,
+      success:false,
+      message: error?.message || "Failed to update meal",
+    
+    })
+  }
+}
+
 export const MealController = {
-    // Add controller methods here
     createMeal,
     getMeals,
-    getMealById
+    getMealById,
+    updateMealById
     };
