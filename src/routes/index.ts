@@ -35,6 +35,10 @@ const routerManager=[
         route: ProviderRoutes
     },
     {
+        path:'/api/provider',
+        route: ProviderRoutes
+    },
+    {
         path:'/api/orders',
         route: OrderRoutes
     }

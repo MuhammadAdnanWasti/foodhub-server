@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post("/",auth(UserRole.PROVIDER), MealController.createMeal)
 router.put("/:id",auth(UserRole.PROVIDER), MealController.updateMealById)
+// router.delete("/:id",auth(UserRole.PROVIDER), MealController.deleteMealById)
 router.get("/", MealController.getMeals)
 router.get("/:id", MealController.getMealById)
 

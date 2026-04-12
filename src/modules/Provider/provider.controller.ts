@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ProviderService } from "./provider.service";
+import sendResponce from "../../utils/sendResponce";
 
 const getAllProviders= async (req: Request, res: Response) => {
   
@@ -52,8 +53,28 @@ const getProviderById=async (req:Request, res:Response) => {
   }
  
 }
+const updateOrderStatusById=async (req:Request, res:Response) => {
+  
+  try {
+    const request = await ProviderService.updateOrderStatusById(req.params.id as string, req.body?.status, req.user?.id)
+    sendResponce(res,{
+      statusCode:200,
+      success:true,
+      message:"Order Status updated successfully",
+      data:request
+  })
+  } catch (error: any) {
+    sendResponce(res,{
+      statusCode:500,
+      success:false,
+      message: error?.message || "Failed to update order status",
+    
+    })
+  }
+}
 export const ProviderController = {
     // Add controller methods here
     getProviderById,
-    getAllProviders
+    getAllProviders,
+    updateOrderStatusById
     };
