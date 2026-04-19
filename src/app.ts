@@ -4,6 +4,7 @@ import { AuthRoutes } from './modules/Auth/auth.route';
 import { MealRoutes } from './modules/Meal/meal.route';
 import { CategoriesRoutes } from './modules/Categories/categories.route';
 import router from './routes';
+import { notFound } from './middlewares/notFound';
 
 const app: Application = express();
 
@@ -21,4 +22,6 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello from Apollo Gears World!');
 });
 
+app.use(notFound);
 export default app;
+    

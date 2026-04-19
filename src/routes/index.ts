@@ -5,6 +5,7 @@ import { AuthRoutes } from "../modules/Auth/auth.route";
 import path from "node:path";
 import { ProviderRoutes } from "../modules/Provider/provider.route";
 import { OrderRoutes } from "../modules/Order/order.route";
+import { AdminRoutes } from "../modules/Admin/admin.route";
 
 
 const router=Router();
@@ -41,6 +42,10 @@ const routerManager=[
     {
         path:'/api/orders',
         route: OrderRoutes
+    },
+    {
+        path:'/api/admin',
+        route: AdminRoutes
     }
 ]
 
