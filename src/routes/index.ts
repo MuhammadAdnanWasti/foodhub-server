@@ -6,6 +6,7 @@ import path from "node:path";
 import { ProviderRoutes } from "../modules/Provider/provider.route";
 import { OrderRoutes } from "../modules/Order/order.route";
 import { AdminRoutes } from "../modules/Admin/admin.route";
+import { ReviewRoutes } from "../modules/Review/review.route";
 
 
 const router=Router();
@@ -19,10 +20,10 @@ const routerManager=[
         path:'/api/auth',
         route: AuthRoutes
      },
-     {
-        path:'/api/provider/meals',
-        route: MealRoutes
-     },
+    //  {
+    //     path:'/api/provider/meals',
+    //     route: MealRoutes
+    //  },
      {
         path:'/admin/categories',
         route: CategoriesRoutes
@@ -46,6 +47,10 @@ const routerManager=[
     {
         path:'/api/admin',
         route: AdminRoutes
+    },
+    {
+        path:'/api/reviews',
+        route: ReviewRoutes
     }
 ]
 
