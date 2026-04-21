@@ -18,6 +18,24 @@ const getUsersFromDB = async () => {
     return users;
 };
 
+const getAllOrders = async () => {
+    const orders = await prisma.orders.findMany({
+        include: {
+            user: true,
+            provider: true,
+            orderItems: {
+                include: {
+                    meal: true
+                }
+            }
+        },
+        orderBy: {
+            createdAt: 'desc'
+        }
+    });
+    return orders;
+};
+
 const updateUserRoleStatusInDB = async (
     userId: string,
     payload: UpdateUserRoleStatusPayload,
@@ -59,5 +77,6 @@ const updateUserRoleStatusInDB = async (
 
 export const AdminService = {
     getUsersFromDB,
+    getAllOrders,
     updateUserRoleStatusInDB,
 };

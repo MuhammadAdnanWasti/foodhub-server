@@ -20,6 +20,42 @@ const getProviderById = async (id: string) => {
     });
     return provider;
 }
+
+const getProviderOrders = async (userId: string | undefined) => {
+    if (!userId) {
+        throw new Error("Authentication required")
+    }
+
+    // Get provider profile linked to authenticated user
+    const providerProfile = await prisma.providerProfiles.findUnique({
+        where: { userId: userId }
+    })
+    if (!providerProfile) {
+        throw new Error("Provider profile not found")
+    }
+
+    // Get all orders for this provider
+    const orders = await prisma.orders.findMany({
+        where: {
+            providerId: providerProfile.id
+        },
+        include: {
+            user: true,
+            provider: true,
+            orderItems: {
+                include: {
+                    meal: true
+                }
+            }
+        },
+        orderBy: {
+            createdAt: 'desc'
+        }
+    })
+
+    return orders
+}
+
 const updateOrderStatusById = async (orderId: string, status: OrderStatus, userId: string | undefined) => {
     if (!userId) {
         throw new Error("Authentication required")
@@ -38,22 +74,32 @@ const updateOrderStatusById = async (orderId: string, status: OrderStatus, userI
     }
     const existing = await prisma.orders.findUnique({
         where: { id: orderId },
-        include: { meal: true }
+        include: { orderItems: true }
     })
     if (!existing) {
         throw new Error("Order not found")
     }
-    if (existing.meal.providerId !== providerProfile.id) {
+    if (existing.providerId !== providerProfile.id) {
         throw new Error("You are not authorized to update this order")
     }
     return prisma.orders.update({
         where: { id: orderId },
-        data: { status }
+        data: { status },
+        include: {
+            orderItems: {
+                include: {
+                    meal: true
+                }
+            },
+            user: true,
+            provider: true
+        }
     })
 }
 export const ProviderService = {
     // Add service methods here
     getProviderById,
     getAllProviders,
+    getProviderOrders,
     updateOrderStatusById
     };

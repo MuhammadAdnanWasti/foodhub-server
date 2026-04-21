@@ -53,6 +53,34 @@ const getProviderById=async (req:Request, res:Response) => {
   }
  
 }
+
+const getProviderOrders = async (req: Request, res: Response) => {
+  try {
+    const orders = await ProviderService.getProviderOrders(req.user?.id);
+    
+    if (orders.length === 0) {
+        return res.status(404).json({
+            success: false,
+            message: "No orders found for this provider"
+        });
+    }
+
+    sendResponce(res, {
+        statusCode: 200,
+        success: true,
+        message: "Provider orders retrieved successfully",
+        data: orders
+    });
+  } catch (error: any) {
+    sendResponce(res, {
+        statusCode: 500,
+        success: false,
+        message: error?.message || "Failed to retrieve provider orders",
+        data: {}
+    });
+  }
+}
+
 const updateOrderStatusById=async (req:Request, res:Response) => {
   
   try {
@@ -76,5 +104,6 @@ export const ProviderController = {
     // Add controller methods here
     getProviderById,
     getAllProviders,
+    getProviderOrders,
     updateOrderStatusById
     };

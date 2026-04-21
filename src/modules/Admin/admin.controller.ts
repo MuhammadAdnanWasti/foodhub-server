@@ -22,6 +22,37 @@ const getUsers = async (req: Request, res: Response) => {
     }
 };
 
+const getAllOrders = async (req: Request, res: Response) => {
+    try {
+        const orders = await AdminService.getAllOrders();
+        
+        if (orders.length === 0) {
+            return sendResponce(res, {
+                statusCode: 404,
+                success: false,
+                message: "No orders found",
+                data: []
+            });
+        }
+
+        sendResponce(res, {
+            statusCode: 200,
+            success: true,
+            message: "All orders retrieved successfully",
+            data: orders
+        });
+    } catch (error: unknown) {
+        const message =
+            error instanceof Error ? error.message : "Failed to retrieve orders";
+        sendResponce(res, {
+            statusCode: 500,
+            success: false,
+            message,
+            data: null
+        });
+    }
+};
+
 const updateUserById = async (req: Request, res: Response) => {
     try {
         const parsed = adminValidationSchema.adminUpdateUserSchema.safeParse(
@@ -81,5 +112,6 @@ const updateUserById = async (req: Request, res: Response) => {
 
 export const AdminController = {
     getUsers,
+    getAllOrders,
     updateUserById,
 };
