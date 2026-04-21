@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { OrderService } from "./order.service";
+import { orderValidationSchema } from "./order.validation";
 import sendResponce from "../../utils/sendResponce";
 
 const createOrder= async (req: Request, res: Response) => {
@@ -22,6 +23,39 @@ const createOrder= async (req: Request, res: Response) => {
             message: error instanceof Error ? error.message : "Failed to create order!",
             data:{}
         })
+    }
+}
+
+const checkoutCart = async (req: Request, res: Response) => {
+    try {
+        // Validate request body
+        const validationResult = orderValidationSchema.checkoutRequestSchema.safeParse(req.body);
+        
+        if (!validationResult.success) {
+            return sendResponce(res, {
+                statusCode: 400,
+                success: false,
+                message: "Validation failed",
+                data: validationResult.error.errors
+            });
+        }
+
+        const result = await OrderService.checkoutCart(validationResult.data, req.user?.id as string);
+
+        sendResponce(res, {
+            statusCode: 201,
+            success: true,
+            message: "Order placed successfully",
+            data: result
+        });
+    } catch (error) {
+        console.error("Error during checkout:", error);
+        sendResponce(res, {
+            statusCode: 500,
+            success: false,
+            message: error instanceof Error ? error.message : "Failed to place order",
+            data: {}
+        });
     }
 }
 
@@ -79,6 +113,7 @@ const getOrderById=async (req:Request, res:Response) => {
 export const OrderController = {
     // Add controller methods here
     createOrder,
+    checkoutCart,
     getOrders,
     getOrderById
     };

@@ -53,6 +53,7 @@ model ProviderProfiles {
     updatedAt   DateTime @updatedAt
 
     meals Meals[]
+    orders Orders[]
     @@map ("provider_profiles")
     @@index([userId])
 }
@@ -71,7 +72,7 @@ model Meals {
     categoryId  String
     category    Categories @relation(fields: [categoryId], references: [id])
 
-    orders Orders[]
+    orderItems OrderItem[]
     reviews Review[]
    
     
@@ -95,19 +96,38 @@ model Categories {
 }
 
 model Orders {
-    id          String   @id @default(uuid())
-    userId      String
-    user       User     @relation(fields: [userId], references: [id])
-    mealId      String
-    meal       Meals     @relation(fields: [mealId], references: [id])
-    quantity    Int
-    status      OrderStatus @default(PLACED)
-    totalPrice  Float
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    id              String   @id @default(uuid())
+    userId          String
+    user            User     @relation(fields: [userId], references: [id])
+    providerId      String
+    provider        ProviderProfiles @relation(fields: [providerId], references: [id])
+    deliveryAddress String
+    status          OrderStatus @default(PLACED)
+    totalPrice      Float
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+    
+    orderItems      OrderItem[]
 
     @@map ("orders")
     @@index([userId])
+    @@index([providerId])
+}
+
+model OrderItem {
+    id          String   @id @default(uuid())
+    orderId     String
+    order       Orders   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    mealId      String
+    meal        Meals    @relation(fields: [mealId], references: [id])
+    quantity    Int
+    unitPrice   Float
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    @@unique([orderId, mealId])
+    @@map ("order_items")
+    @@index([orderId])
     @@index([mealId])
 }
 
