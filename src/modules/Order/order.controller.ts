@@ -110,10 +110,55 @@ const getOrderById=async (req:Request, res:Response) => {
   }
  
 }
+const cancelOrder = async (req: Request, res: Response) => {
+    try {
+        const result = await OrderService.cancelOrder(req.params.id as string, req.user?.id as string);
+        sendResponce(res, {
+            statusCode: 200,
+            success: true,
+            message: "Order cancelled successfully",
+            data: result,
+        });
+    } catch (error: any) {
+        sendResponce(res, {
+            statusCode: error?.message?.includes("not authorized") ? 403 : 400,
+            success: false,
+            message: error?.message || "Failed to cancel order",
+        });
+    }
+};
+
+const checkoutCartFromDb = async (req: Request, res: Response) => {
+    try {
+        const { deliveryAddress } = req.body;
+        if (!deliveryAddress) {
+            return sendResponce(res, {
+                statusCode: 400,
+                success: false,
+                message: "Delivery address is required",
+            });
+        }
+        const result = await OrderService.checkoutCartFromDb(req.user?.id as string, deliveryAddress);
+        sendResponce(res, {
+            statusCode: 201,
+            success: true,
+            message: "Order placed successfully",
+            data: result,
+        });
+    } catch (error: any) {
+        sendResponce(res, {
+            statusCode: 400,
+            success: false,
+            message: error?.message || "Failed to place order",
+        });
+    }
+};
+
 export const OrderController = {
-    // Add controller methods here
     createOrder,
     checkoutCart,
     getOrders,
-    getOrderById
-    };
+    getOrderById,
+    cancelOrder,
+    checkoutCartFromDb,
+};

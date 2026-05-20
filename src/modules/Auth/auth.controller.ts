@@ -9,6 +9,11 @@ const createUser = async (req: Request, res: Response) => {
         const validatedData = authValidationSchema.registerValidationSchema.parse(req.body);
         
         const result = await AuthService.createUserInfoDB(validatedData);
+        res.cookie("token", result.token, {
+            secure: false,
+            httpOnly: true,
+            sameSite: "strict",
+        });
        
         sendResponce(res, {
             statusCode: 200,
@@ -60,27 +65,31 @@ const loginUser = async (req: Request, res: Response) => {
 
 const getMe=async (req:Request, res:Response) => {
   
-
   try {
     const userId = (req as any).user.id;
     const request = await AuthService.getMeById(userId) 
     if(request === null){
-        return res.status(404).json({ message: "User not found"})
+        return sendResponce(res, {
+            statusCode: 404,
+            success: false,
+            message: "User not found",
+            data: null
+        });
     }else{
-        res.status(201).json({
-  "success": true,
-  "message": "User retrieved successfully",
-  "data":request
-})  
-        
+        return sendResponce(res, {
+            statusCode: 200,
+            success: true,
+            message: "User retrieved successfully",
+            data: request
+        });  
     }
 
-  
   } catch (error: any) {
-     res.status(500).json({
-      success: false,
-      message: error?.message || "Failed to retrieve user",
-      error: error.message
+     sendResponce(res, {
+        statusCode: 500,
+        success: false,
+        message: error?.message || "Failed to retrieve user",
+        data: null
     });
   }
  

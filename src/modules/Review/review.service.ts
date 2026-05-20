@@ -1,43 +1,33 @@
 import { prisma } from "../../lib/prisma";
 
 const createReviewInfoDB = async (payLoad: any, userId: string) => {
-    // Validate user exists
-    const user = await prisma.user.findUnique({
-        where: { id: userId }
-    });
-    
-    if (!user) {
-        throw new Error("User not found");
-    }
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new Error("User not found");
 
-    // Validate meal exists
-    const meal = await prisma.meals.findUnique({
-        where: { id: payLoad.mealId }
-    });
-    
-    if (!meal) {
-        throw new Error("Meal not found");
-    }
+    const meal = await prisma.meals.findUnique({ where: { id: payLoad.mealId } });
+    if (!meal) throw new Error("Meal not found");
 
-    // Validate rating is between 1 and 5
     if (payLoad.rating < 1 || payLoad.rating > 5) {
         throw new Error("Rating must be between 1 and 5");
     }
 
-    // Create review
+    const existing = await prisma.review.findFirst({
+        where: { userId, mealId: payLoad.mealId },
+    });
+    if (existing) {
+        throw new Error("You have already reviewed this meal. Edit your existing review instead.");
+    }
+
     const result = await prisma.review.create({
         data: {
             rating: payLoad.rating,
             comment: payLoad.comment || null,
-            userId: userId,
-            mealId: payLoad.mealId
+            userId,
+            mealId: payLoad.mealId,
         },
-        include: {
-            user: true,
-            meal: true
-        }
+        include: { user: true, meal: true },
     });
-    
+
     return result;
 };
 
@@ -163,6 +153,36 @@ const deleteReviewById = async (id: number, userId: string | undefined) => {
     return result;
 };
 
+const getMyReviews = async (userId: string) => {
+    return prisma.review.findMany({
+        where: { userId },
+        include: {
+            meal: {
+                include: { provider: true, category: true },
+            },
+            user: true,
+        },
+        orderBy: { createdAt: "desc" },
+    });
+};
+
+const getReviewsByProvider = async (providerId: string) => {
+    const meals = await prisma.meals.findMany({
+        where: { providerId },
+        select: { id: true },
+    });
+    const mealIds = meals.map((m) => m.id);
+
+    return prisma.review.findMany({
+        where: { mealId: { in: mealIds } },
+        include: {
+            user: { select: { id: true, name: true } },
+            meal: { select: { id: true, name: true } },
+        },
+        orderBy: { createdAt: "desc" },
+    });
+};
+
 export const ReviewService = {
     createReviewInfoDB,
     getReviewsFromDB,
@@ -170,5 +190,7 @@ export const ReviewService = {
     getReviewsByMeal,
     getReviewsByUser,
     updateReviewById,
-    deleteReviewById
+    deleteReviewById,
+    getMyReviews,
+    getReviewsByProvider,
 };

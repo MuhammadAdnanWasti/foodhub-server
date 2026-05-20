@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { DELIVERY_FEE } from "./order.constant";
 
 const createOrder = async (payLoad: any, userId: string, mealId: string) => {
     // Validate mealId is provided
@@ -178,10 +179,96 @@ const getOrderById = async (id: string, userId: string) => {
     
     return order;
 }
+const cancelOrder = async (orderId: string, userId: string) => {
+    const order = await prisma.orders.findUnique({ where: { id: orderId } });
+    if (!order) throw new Error("Order not found");
+    if (order.userId !== userId) throw new Error("You are not authorized to cancel this order");
+    if (order.status !== "PLACED") throw new Error("Only orders with status PLACED can be cancelled");
+
+    return prisma.orders.update({
+        where: { id: orderId },
+        data: { status: "CANCELLED" },
+        include: {
+            orderItems: { include: { meal: true } },
+            user: true,
+            provider: true,
+        },
+    });
+};
+
+const checkoutCartFromDb = async (userId: string, deliveryAddress: string) => {
+    if (!deliveryAddress || deliveryAddress.trim().length < 5) {
+        throw new Error("Delivery address must be at least 5 characters");
+    }
+
+    const cart = await (prisma as any).cart.findUnique({
+        where: { userId },
+        include: {
+            items: {
+                include: { meal: true },
+            },
+        },
+    });
+
+    if (!cart || cart.items.length === 0) {
+        throw new Error("Your cart is empty");
+    }
+
+    const mealIds = cart.items.map((i: { mealId: string }) => i.mealId);
+    const meals = await prisma.meals.findMany({ where: { id: { in: mealIds } } });
+
+    // All meals must belong to same provider (enforced at add time, double-check here)
+    const providerIds = [...new Set(meals.map((m) => m.providerId))];
+    if (providerIds.length !== 1) {
+        throw new Error("All cart items must belong to the same restaurant");
+    }
+    const providerId = providerIds[0];
+
+    let subtotal = 0;
+    const orderItemsData: { mealId: string; quantity: number; unitPrice: number }[] = [];
+
+    cart.items.forEach((item: { mealId: string; quantity: number }) => {
+        const meal = meals.find((m) => m.id === item.mealId);
+        if (meal) {
+            subtotal += meal.price * item.quantity;
+            orderItemsData.push({
+                mealId: item.mealId,
+                quantity: item.quantity,
+                unitPrice: meal.price,
+            });
+        }
+    });
+
+    const totalPrice = parseFloat((subtotal + DELIVERY_FEE).toFixed(2));
+
+    return prisma.$transaction(async (tx) => {
+        const order = await tx.orders.create({
+            data: {
+                userId,
+                providerId,
+                deliveryAddress: deliveryAddress.trim(),
+                status: "PLACED",
+                totalPrice,
+                orderItems: { create: orderItemsData },
+            },
+            include: {
+                orderItems: { include: { meal: true } },
+                user: true,
+                provider: true,
+            },
+        });
+
+        await (tx as any).cartItem.deleteMany({ where: { cartId: cart.id } });
+
+        return { order, deliveryFee: DELIVERY_FEE, subtotal };
+    });
+};
+
 export const OrderService = {
-    // Add service methods here
     createOrder,
     checkoutCart,
     getOrders,
-    getOrderById
-    };
+    getOrderById,
+    cancelOrder,
+    checkoutCartFromDb,
+};

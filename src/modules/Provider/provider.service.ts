@@ -2,6 +2,7 @@ import { OrderStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 const getAllProviders = async () => {
     const meals = await prisma.providerProfiles.findMany({
+        where: { user: { role: "PROVIDER" } },
         include: {
             meals: true,
             user: true
@@ -12,14 +13,54 @@ const getAllProviders = async () => {
 
 const getProviderById = async (id: string) => {
     const provider = await prisma.providerProfiles.findUnique({
-        where: { id },      
+        where: { id },
         include: {
-            meals: true          
-
-        }
+            meals: {
+                include: {
+                    category: true,
+                    reviews: {
+                        include: {
+                            user: { select: { id: true, name: true } },
+                        },
+                    },
+                },
+            },
+        },
     });
     return provider;
 }
+
+type ApplyProviderPayload = {
+    restaurantName: string;
+    address: string;
+    phone: string;
+};
+
+const applyToBecomeProvider = async (userId: string, payload: ApplyProviderPayload) => {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+        throw new Error("User not found");
+    }
+    if (user.role !== "CUSTOMER") {
+        throw new Error("Only customers can apply to become a provider");
+    }
+
+    const existing = await prisma.providerProfiles.findUnique({ where: { userId } });
+    if (existing) {
+        throw new Error("You already have a pending application");
+    }
+
+    const application = await prisma.providerProfiles.create({
+        data: {
+            userId,
+            restaurantName: payload.restaurantName,
+            address: payload.address,
+            phone: payload.phone,
+        },
+    });
+
+    return application;
+};
 
 const getProviderOrders = async (userId: string | undefined) => {
     if (!userId) {
@@ -97,9 +138,9 @@ const updateOrderStatusById = async (orderId: string, status: OrderStatus, userI
     })
 }
 export const ProviderService = {
-    // Add service methods here
     getProviderById,
     getAllProviders,
     getProviderOrders,
-    updateOrderStatusById
-    };
+    updateOrderStatusById,
+    applyToBecomeProvider,
+};

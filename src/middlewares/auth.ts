@@ -14,10 +14,14 @@ const auth =(...roles:UserRole[])=>{
     // console.log(roles)
   return async (req:Request,res:Response,next:NextFunction)=>{
     try {
-        const token=req.headers.authorization
-        if(!token){
+        const authHeader = req.headers.authorization
+        if(!authHeader){
         throw new Error("No token provided")
     }
+    // Extract token from "Bearer <token>"
+    const token = authHeader.startsWith('Bearer ') 
+        ? authHeader.substring(7) 
+        : authHeader
     const decoded =jwt.verify(token, secret)
     console.log(decoded)
     const isUserEXists= await prisma.user.findUnique({

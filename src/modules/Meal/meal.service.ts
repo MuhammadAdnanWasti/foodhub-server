@@ -189,7 +189,7 @@ const deleteMealById = async (id: string, userId: string | undefined) => {
 
     return prisma.$transaction(async (tx) => {
         await tx.review.deleteMany({ where: { mealId: id } })
-        await tx.orders.deleteMany({ where: { mealId: id } })
+        await tx.orderItem.deleteMany({ where: { mealId: id } })
         return tx.meals.delete({
             where: { id },
             include: { category: true, provider: true }

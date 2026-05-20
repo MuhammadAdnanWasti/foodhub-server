@@ -1,7 +1,25 @@
 import { prisma } from "../../lib/prisma";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-export const secret = "234fdsfdsfsdfdesrtewr"
+
+export const secret = process.env.JWT_SECRET || "234fdsfdsfsdfdesrtewr"
+
+const buildAuthResponse = (user: any) => {
+    const token = jwt.sign(
+        {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            status: user.status
+        },
+        secret,
+        { expiresIn: "1d" }
+    );
+
+    const { password, ...userWithoutPassword } = user;
+    return { token, user: userWithoutPassword };
+};
 
 const createUserInfoDB = async (payLoad: any) => {
     // Prepare user data
@@ -35,15 +53,13 @@ const createUserInfoDB = async (payLoad: any) => {
                         }
                     });
 
-                    const { password, ...userWithoutPassword } = user;
                     return {
-                        ...userWithoutPassword,
+                        ...buildAuthResponse(user),
                         providerProfile: providerProfile
                     };
                 }
 
-                const { password, ...userWithoutPassword } = user;
-                return userWithoutPassword;
+                return buildAuthResponse(user);
             },
             {
                 maxWait: 10000,  // 10 seconds to acquire a transaction slot
@@ -77,15 +93,13 @@ const createUserInfoDB = async (payLoad: any) => {
                     }
                 });
 
-                const { password, ...userWithoutPassword } = user;
                 return {
-                    ...userWithoutPassword,
+                    ...buildAuthResponse(user),
                     providerProfile: providerProfile
                 };
             }
 
-            const { password, ...userWithoutPassword } = user;
-            return userWithoutPassword;
+            return buildAuthResponse(user);
         }
         throw error;
     }
@@ -105,20 +119,7 @@ const loginUserDB = async (payLoad: any) => {
         throw new Error("Invalid password");
     }
 
-    const token = jwt.sign(
-        {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            status: user.status
-        },
-        secret,
-        { expiresIn: "1d" }
-    );
-    
-    const { password, ...userWithoutPassword } = user;
-    return { token, user: userWithoutPassword };
+    return buildAuthResponse(user);
 };
 
 const getMeById = async (id: string) => {

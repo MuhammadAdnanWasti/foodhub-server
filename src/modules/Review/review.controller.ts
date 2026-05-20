@@ -148,6 +148,32 @@ const deleteReviewById = async (req: Request, res: Response) => {
     }
 };
 
+const getMyReviews = async (req: Request, res: Response) => {
+    try {
+        const reviews = await ReviewService.getMyReviews(req.user?.id as string);
+        res.status(200).json({
+            success: true,
+            message: "Reviews retrieved successfully",
+            data: reviews,
+        });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error?.message || "Failed to retrieve reviews" });
+    }
+};
+
+const getReviewsByProvider = async (req: Request, res: Response) => {
+    try {
+        const reviews = await ReviewService.getReviewsByProvider(req.params.providerId);
+        res.status(200).json({
+            success: true,
+            message: "Reviews retrieved successfully",
+            data: reviews,
+        });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error?.message || "Failed to retrieve reviews" });
+    }
+};
+
 export const ReviewController = {
     createReview,
     getReviews,
@@ -155,5 +181,7 @@ export const ReviewController = {
     getReviewsByMeal,
     getReviewsByUser,
     updateReviewById,
-    deleteReviewById
+    deleteReviewById,
+    getMyReviews,
+    getReviewsByProvider,
 };

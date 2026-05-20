@@ -75,8 +75,62 @@ const updateUserRoleStatusInDB = async (
     });
 };
 
+const getProviderApplications = async () => {
+    return prisma.providerProfiles.findMany({
+        where: { user: { role: "CUSTOMER" } },
+        include: {
+            user: { omit: { password: true } },
+        },
+        orderBy: { createdAt: "desc" },
+    });
+};
+
+const approveProviderApplication = async (profileId: string) => {
+    const profile = await prisma.providerProfiles.findUnique({
+        where: { id: profileId },
+        include: { user: true },
+    });
+
+    if (!profile) {
+        throw new Error("Application not found");
+    }
+    if (profile.user.role !== "CUSTOMER") {
+        throw new Error("Not a pending application");
+    }
+
+    return prisma.$transaction(async (tx) => {
+        const updatedUser = await tx.user.update({
+            where: { id: profile.userId },
+            data: { role: "PROVIDER" },
+            omit: { password: true },
+            include: { provider: true },
+        });
+        return updatedUser;
+    });
+};
+
+const rejectProviderApplication = async (profileId: string) => {
+    const profile = await prisma.providerProfiles.findUnique({
+        where: { id: profileId },
+        include: { user: true },
+    });
+
+    if (!profile) {
+        throw new Error("Application not found");
+    }
+    if (profile.user.role !== "CUSTOMER") {
+        throw new Error("Cannot reject an already-approved provider");
+    }
+
+    await prisma.providerProfiles.delete({ where: { id: profileId } });
+    return { message: "Application rejected and removed" };
+};
+
 export const AdminService = {
     getUsersFromDB,
     getAllOrders,
     updateUserRoleStatusInDB,
+    getProviderApplications,
+    approveProviderApplication,
+    rejectProviderApplication,
 };

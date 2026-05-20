@@ -110,8 +110,62 @@ const updateUserById = async (req: Request, res: Response) => {
     }
 };
 
+const getProviderApplications = async (req: Request, res: Response) => {
+    try {
+        const applications = await AdminService.getProviderApplications();
+        sendResponce(res, {
+            statusCode: 200,
+            success: true,
+            message: "Provider applications retrieved successfully",
+            data: applications,
+        });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Failed to retrieve applications";
+        sendResponce(res, { statusCode: 500, success: false, message, data: null });
+    }
+};
+
+const approveProviderApplication = async (req: Request, res: Response) => {
+    try {
+        const result = await AdminService.approveProviderApplication(req.params.id);
+        sendResponce(res, {
+            statusCode: 200,
+            success: true,
+            message: "Provider application approved successfully",
+            data: result,
+        });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Failed to approve application";
+        const statusCode =
+            message === "Application not found" ? 404 :
+            message === "Not a pending application" ? 400 : 500;
+        sendResponce(res, { statusCode, success: false, message, data: null });
+    }
+};
+
+const rejectProviderApplication = async (req: Request, res: Response) => {
+    try {
+        const result = await AdminService.rejectProviderApplication(req.params.id);
+        sendResponce(res, {
+            statusCode: 200,
+            success: true,
+            message: "Provider application rejected",
+            data: result,
+        });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Failed to reject application";
+        const statusCode =
+            message === "Application not found" ? 404 :
+            message === "Cannot reject an already-approved provider" ? 400 : 500;
+        sendResponce(res, { statusCode, success: false, message, data: null });
+    }
+};
+
 export const AdminController = {
     getUsers,
     getAllOrders,
     updateUserById,
+    getProviderApplications,
+    approveProviderApplication,
+    rejectProviderApplication,
 };

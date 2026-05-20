@@ -7,6 +7,7 @@ import { ProviderRoutes } from "../modules/Provider/provider.route";
 import { OrderRoutes } from "../modules/Order/order.route";
 import { AdminRoutes } from "../modules/Admin/admin.route";
 import { ReviewRoutes } from "../modules/Review/review.route";
+import { CartRoutes } from "../modules/Cart/cart.route";
 
 
 const router=Router();
@@ -30,7 +31,7 @@ const routerManager=[
     },
     {
         path:'/api/meals',
-        route: MealRoutes
+        route: MealRoutes 
     },
     {
         path:'/api/providers',
@@ -51,6 +52,10 @@ const routerManager=[
     {
         path:'/api/reviews',
         route: ReviewRoutes
+    },
+    {
+        path:'/api/cart',
+        route: CartRoutes
     }
 ]
 

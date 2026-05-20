@@ -252,6 +252,7 @@ export type MealsWhereInput = {
   category?: Prisma.XOR<Prisma.CategoriesScalarRelationFilter, Prisma.CategoriesWhereInput>
   orderItems?: Prisma.OrderItemListRelationFilter
   reviews?: Prisma.ReviewListRelationFilter
+  cartItems?: Prisma.CartItemListRelationFilter
 }
 
 export type MealsOrderByWithRelationInput = {
@@ -268,6 +269,7 @@ export type MealsOrderByWithRelationInput = {
   category?: Prisma.CategoriesOrderByWithRelationInput
   orderItems?: Prisma.OrderItemOrderByRelationAggregateInput
   reviews?: Prisma.ReviewOrderByRelationAggregateInput
+  cartItems?: Prisma.CartItemOrderByRelationAggregateInput
 }
 
 export type MealsWhereUniqueInput = Prisma.AtLeast<{
@@ -287,6 +289,7 @@ export type MealsWhereUniqueInput = Prisma.AtLeast<{
   category?: Prisma.XOR<Prisma.CategoriesScalarRelationFilter, Prisma.CategoriesWhereInput>
   orderItems?: Prisma.OrderItemListRelationFilter
   reviews?: Prisma.ReviewListRelationFilter
+  cartItems?: Prisma.CartItemListRelationFilter
 }, "id">
 
 export type MealsOrderByWithAggregationInput = {
@@ -333,6 +336,7 @@ export type MealsCreateInput = {
   category: Prisma.CategoriesCreateNestedOneWithoutMealsInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutMealInput
   reviews?: Prisma.ReviewCreateNestedManyWithoutMealInput
+  cartItems?: Prisma.CartItemCreateNestedManyWithoutMealInput
 }
 
 export type MealsUncheckedCreateInput = {
@@ -347,6 +351,7 @@ export type MealsUncheckedCreateInput = {
   categoryId: string
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutMealInput
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutMealInput
+  cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutMealInput
 }
 
 export type MealsUpdateInput = {
@@ -361,6 +366,7 @@ export type MealsUpdateInput = {
   category?: Prisma.CategoriesUpdateOneRequiredWithoutMealsNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutMealNestedInput
   reviews?: Prisma.ReviewUpdateManyWithoutMealNestedInput
+  cartItems?: Prisma.CartItemUpdateManyWithoutMealNestedInput
 }
 
 export type MealsUncheckedUpdateInput = {
@@ -375,6 +381,7 @@ export type MealsUncheckedUpdateInput = {
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutMealNestedInput
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutMealNestedInput
+  cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutMealNestedInput
 }
 
 export type MealsCreateManyInput = {
@@ -590,6 +597,20 @@ export type MealsUpdateOneRequiredWithoutReviewsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MealsUpdateToOneWithWhereWithoutReviewsInput, Prisma.MealsUpdateWithoutReviewsInput>, Prisma.MealsUncheckedUpdateWithoutReviewsInput>
 }
 
+export type MealsCreateNestedOneWithoutCartItemsInput = {
+  create?: Prisma.XOR<Prisma.MealsCreateWithoutCartItemsInput, Prisma.MealsUncheckedCreateWithoutCartItemsInput>
+  connectOrCreate?: Prisma.MealsCreateOrConnectWithoutCartItemsInput
+  connect?: Prisma.MealsWhereUniqueInput
+}
+
+export type MealsUpdateOneRequiredWithoutCartItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.MealsCreateWithoutCartItemsInput, Prisma.MealsUncheckedCreateWithoutCartItemsInput>
+  connectOrCreate?: Prisma.MealsCreateOrConnectWithoutCartItemsInput
+  upsert?: Prisma.MealsUpsertWithoutCartItemsInput
+  connect?: Prisma.MealsWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MealsUpdateToOneWithWhereWithoutCartItemsInput, Prisma.MealsUpdateWithoutCartItemsInput>, Prisma.MealsUncheckedUpdateWithoutCartItemsInput>
+}
+
 export type MealsCreateWithoutProviderInput = {
   id?: string
   name: string
@@ -601,6 +622,7 @@ export type MealsCreateWithoutProviderInput = {
   category: Prisma.CategoriesCreateNestedOneWithoutMealsInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutMealInput
   reviews?: Prisma.ReviewCreateNestedManyWithoutMealInput
+  cartItems?: Prisma.CartItemCreateNestedManyWithoutMealInput
 }
 
 export type MealsUncheckedCreateWithoutProviderInput = {
@@ -614,6 +636,7 @@ export type MealsUncheckedCreateWithoutProviderInput = {
   categoryId: string
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutMealInput
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutMealInput
+  cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutMealInput
 }
 
 export type MealsCreateOrConnectWithoutProviderInput = {
@@ -668,6 +691,7 @@ export type MealsCreateWithoutCategoryInput = {
   provider: Prisma.ProviderProfilesCreateNestedOneWithoutMealsInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutMealInput
   reviews?: Prisma.ReviewCreateNestedManyWithoutMealInput
+  cartItems?: Prisma.CartItemCreateNestedManyWithoutMealInput
 }
 
 export type MealsUncheckedCreateWithoutCategoryInput = {
@@ -681,6 +705,7 @@ export type MealsUncheckedCreateWithoutCategoryInput = {
   providerId: string
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutMealInput
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutMealInput
+  cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutMealInput
 }
 
 export type MealsCreateOrConnectWithoutCategoryInput = {
@@ -720,6 +745,7 @@ export type MealsCreateWithoutOrderItemsInput = {
   provider: Prisma.ProviderProfilesCreateNestedOneWithoutMealsInput
   category: Prisma.CategoriesCreateNestedOneWithoutMealsInput
   reviews?: Prisma.ReviewCreateNestedManyWithoutMealInput
+  cartItems?: Prisma.CartItemCreateNestedManyWithoutMealInput
 }
 
 export type MealsUncheckedCreateWithoutOrderItemsInput = {
@@ -733,6 +759,7 @@ export type MealsUncheckedCreateWithoutOrderItemsInput = {
   providerId: string
   categoryId: string
   reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutMealInput
+  cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutMealInput
 }
 
 export type MealsCreateOrConnectWithoutOrderItemsInput = {
@@ -762,6 +789,7 @@ export type MealsUpdateWithoutOrderItemsInput = {
   provider?: Prisma.ProviderProfilesUpdateOneRequiredWithoutMealsNestedInput
   category?: Prisma.CategoriesUpdateOneRequiredWithoutMealsNestedInput
   reviews?: Prisma.ReviewUpdateManyWithoutMealNestedInput
+  cartItems?: Prisma.CartItemUpdateManyWithoutMealNestedInput
 }
 
 export type MealsUncheckedUpdateWithoutOrderItemsInput = {
@@ -775,6 +803,7 @@ export type MealsUncheckedUpdateWithoutOrderItemsInput = {
   providerId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutMealNestedInput
+  cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutMealNestedInput
 }
 
 export type MealsCreateWithoutReviewsInput = {
@@ -788,6 +817,7 @@ export type MealsCreateWithoutReviewsInput = {
   provider: Prisma.ProviderProfilesCreateNestedOneWithoutMealsInput
   category: Prisma.CategoriesCreateNestedOneWithoutMealsInput
   orderItems?: Prisma.OrderItemCreateNestedManyWithoutMealInput
+  cartItems?: Prisma.CartItemCreateNestedManyWithoutMealInput
 }
 
 export type MealsUncheckedCreateWithoutReviewsInput = {
@@ -801,6 +831,7 @@ export type MealsUncheckedCreateWithoutReviewsInput = {
   providerId: string
   categoryId: string
   orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutMealInput
+  cartItems?: Prisma.CartItemUncheckedCreateNestedManyWithoutMealInput
 }
 
 export type MealsCreateOrConnectWithoutReviewsInput = {
@@ -830,6 +861,7 @@ export type MealsUpdateWithoutReviewsInput = {
   provider?: Prisma.ProviderProfilesUpdateOneRequiredWithoutMealsNestedInput
   category?: Prisma.CategoriesUpdateOneRequiredWithoutMealsNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutMealNestedInput
+  cartItems?: Prisma.CartItemUpdateManyWithoutMealNestedInput
 }
 
 export type MealsUncheckedUpdateWithoutReviewsInput = {
@@ -843,6 +875,79 @@ export type MealsUncheckedUpdateWithoutReviewsInput = {
   providerId?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutMealNestedInput
+  cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutMealNestedInput
+}
+
+export type MealsCreateWithoutCartItemsInput = {
+  id?: string
+  name: string
+  description: string
+  price: number
+  image: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  provider: Prisma.ProviderProfilesCreateNestedOneWithoutMealsInput
+  category: Prisma.CategoriesCreateNestedOneWithoutMealsInput
+  orderItems?: Prisma.OrderItemCreateNestedManyWithoutMealInput
+  reviews?: Prisma.ReviewCreateNestedManyWithoutMealInput
+}
+
+export type MealsUncheckedCreateWithoutCartItemsInput = {
+  id?: string
+  name: string
+  description: string
+  price: number
+  image: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  providerId: string
+  categoryId: string
+  orderItems?: Prisma.OrderItemUncheckedCreateNestedManyWithoutMealInput
+  reviews?: Prisma.ReviewUncheckedCreateNestedManyWithoutMealInput
+}
+
+export type MealsCreateOrConnectWithoutCartItemsInput = {
+  where: Prisma.MealsWhereUniqueInput
+  create: Prisma.XOR<Prisma.MealsCreateWithoutCartItemsInput, Prisma.MealsUncheckedCreateWithoutCartItemsInput>
+}
+
+export type MealsUpsertWithoutCartItemsInput = {
+  update: Prisma.XOR<Prisma.MealsUpdateWithoutCartItemsInput, Prisma.MealsUncheckedUpdateWithoutCartItemsInput>
+  create: Prisma.XOR<Prisma.MealsCreateWithoutCartItemsInput, Prisma.MealsUncheckedCreateWithoutCartItemsInput>
+  where?: Prisma.MealsWhereInput
+}
+
+export type MealsUpdateToOneWithWhereWithoutCartItemsInput = {
+  where?: Prisma.MealsWhereInput
+  data: Prisma.XOR<Prisma.MealsUpdateWithoutCartItemsInput, Prisma.MealsUncheckedUpdateWithoutCartItemsInput>
+}
+
+export type MealsUpdateWithoutCartItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  image?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  provider?: Prisma.ProviderProfilesUpdateOneRequiredWithoutMealsNestedInput
+  category?: Prisma.CategoriesUpdateOneRequiredWithoutMealsNestedInput
+  orderItems?: Prisma.OrderItemUpdateManyWithoutMealNestedInput
+  reviews?: Prisma.ReviewUpdateManyWithoutMealNestedInput
+}
+
+export type MealsUncheckedUpdateWithoutCartItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.FloatFieldUpdateOperationsInput | number
+  image?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  providerId?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutMealNestedInput
+  reviews?: Prisma.ReviewUncheckedUpdateManyWithoutMealNestedInput
 }
 
 export type MealsCreateManyProviderInput = {
@@ -867,6 +972,7 @@ export type MealsUpdateWithoutProviderInput = {
   category?: Prisma.CategoriesUpdateOneRequiredWithoutMealsNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutMealNestedInput
   reviews?: Prisma.ReviewUpdateManyWithoutMealNestedInput
+  cartItems?: Prisma.CartItemUpdateManyWithoutMealNestedInput
 }
 
 export type MealsUncheckedUpdateWithoutProviderInput = {
@@ -880,6 +986,7 @@ export type MealsUncheckedUpdateWithoutProviderInput = {
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutMealNestedInput
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutMealNestedInput
+  cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutMealNestedInput
 }
 
 export type MealsUncheckedUpdateManyWithoutProviderInput = {
@@ -915,6 +1022,7 @@ export type MealsUpdateWithoutCategoryInput = {
   provider?: Prisma.ProviderProfilesUpdateOneRequiredWithoutMealsNestedInput
   orderItems?: Prisma.OrderItemUpdateManyWithoutMealNestedInput
   reviews?: Prisma.ReviewUpdateManyWithoutMealNestedInput
+  cartItems?: Prisma.CartItemUpdateManyWithoutMealNestedInput
 }
 
 export type MealsUncheckedUpdateWithoutCategoryInput = {
@@ -928,6 +1036,7 @@ export type MealsUncheckedUpdateWithoutCategoryInput = {
   providerId?: Prisma.StringFieldUpdateOperationsInput | string
   orderItems?: Prisma.OrderItemUncheckedUpdateManyWithoutMealNestedInput
   reviews?: Prisma.ReviewUncheckedUpdateManyWithoutMealNestedInput
+  cartItems?: Prisma.CartItemUncheckedUpdateManyWithoutMealNestedInput
 }
 
 export type MealsUncheckedUpdateManyWithoutCategoryInput = {
@@ -949,11 +1058,13 @@ export type MealsUncheckedUpdateManyWithoutCategoryInput = {
 export type MealsCountOutputType = {
   orderItems: number
   reviews: number
+  cartItems: number
 }
 
 export type MealsCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orderItems?: boolean | MealsCountOutputTypeCountOrderItemsArgs
   reviews?: boolean | MealsCountOutputTypeCountReviewsArgs
+  cartItems?: boolean | MealsCountOutputTypeCountCartItemsArgs
 }
 
 /**
@@ -980,6 +1091,13 @@ export type MealsCountOutputTypeCountReviewsArgs<ExtArgs extends runtime.Types.E
   where?: Prisma.ReviewWhereInput
 }
 
+/**
+ * MealsCountOutputType without action
+ */
+export type MealsCountOutputTypeCountCartItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CartItemWhereInput
+}
+
 
 export type MealsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -995,6 +1113,7 @@ export type MealsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   category?: boolean | Prisma.CategoriesDefaultArgs<ExtArgs>
   orderItems?: boolean | Prisma.Meals$orderItemsArgs<ExtArgs>
   reviews?: boolean | Prisma.Meals$reviewsArgs<ExtArgs>
+  cartItems?: boolean | Prisma.Meals$cartItemsArgs<ExtArgs>
   _count?: boolean | Prisma.MealsCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["meals"]>
 
@@ -1044,6 +1163,7 @@ export type MealsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   category?: boolean | Prisma.CategoriesDefaultArgs<ExtArgs>
   orderItems?: boolean | Prisma.Meals$orderItemsArgs<ExtArgs>
   reviews?: boolean | Prisma.Meals$reviewsArgs<ExtArgs>
+  cartItems?: boolean | Prisma.Meals$cartItemsArgs<ExtArgs>
   _count?: boolean | Prisma.MealsCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type MealsIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1062,6 +1182,7 @@ export type $MealsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     category: Prisma.$CategoriesPayload<ExtArgs>
     orderItems: Prisma.$OrderItemPayload<ExtArgs>[]
     reviews: Prisma.$ReviewPayload<ExtArgs>[]
+    cartItems: Prisma.$CartItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1471,6 +1592,7 @@ export interface Prisma__MealsClient<T, Null = never, ExtArgs extends runtime.Ty
   category<T extends Prisma.CategoriesDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CategoriesDefaultArgs<ExtArgs>>): Prisma.Prisma__CategoriesClient<runtime.Types.Result.GetResult<Prisma.$CategoriesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   orderItems<T extends Prisma.Meals$orderItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Meals$orderItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reviews<T extends Prisma.Meals$reviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Meals$reviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  cartItems<T extends Prisma.Meals$cartItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Meals$cartItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1950,6 +2072,30 @@ export type Meals$reviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.ReviewScalarFieldEnum | Prisma.ReviewScalarFieldEnum[]
+}
+
+/**
+ * Meals.cartItems
+ */
+export type Meals$cartItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CartItem
+   */
+  select?: Prisma.CartItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CartItem
+   */
+  omit?: Prisma.CartItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CartItemInclude<ExtArgs> | null
+  where?: Prisma.CartItemWhereInput
+  orderBy?: Prisma.CartItemOrderByWithRelationInput | Prisma.CartItemOrderByWithRelationInput[]
+  cursor?: Prisma.CartItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CartItemScalarFieldEnum | Prisma.CartItemScalarFieldEnum[]
 }
 
 /**

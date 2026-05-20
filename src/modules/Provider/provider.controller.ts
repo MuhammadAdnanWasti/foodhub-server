@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ProviderService } from "./provider.service";
+import { providerValidationSchema } from "./provider.validation";
 import sendResponce from "../../utils/sendResponce";
 
 const getAllProviders= async (req: Request, res: Response) => {
@@ -100,10 +101,53 @@ const updateOrderStatusById=async (req:Request, res:Response) => {
     })
   }
 }
+const applyToBecomeProvider = async (req: Request, res: Response) => {
+    try {
+        const parsed = providerValidationSchema.applyProviderSchema.safeParse(req.body);
+        if (!parsed.success) {
+            const first = parsed.error.issues[0]?.message ?? "Invalid input";
+            return sendResponce(res, {
+                statusCode: 400,
+                success: false,
+                message: first,
+                data: null,
+            });
+        }
+
+        const userId = req.user?.id as string | undefined;
+        if (!userId) {
+            return sendResponce(res, {
+                statusCode: 401,
+                success: false,
+                message: "Unauthorized",
+                data: null,
+            });
+        }
+
+        const application = await ProviderService.applyToBecomeProvider(userId, parsed.data);
+        sendResponce(res, {
+            statusCode: 201,
+            success: true,
+            message: "Application submitted successfully. An admin will review it shortly.",
+            data: application,
+        });
+    } catch (error: any) {
+        const statusCode =
+            error.message === "You already have a pending application" ? 409 :
+            error.message === "Only customers can apply to become a provider" ? 400 : 500;
+        sendResponce(res, {
+            statusCode,
+            success: false,
+            message: error.message || "Failed to submit application",
+            data: null,
+        });
+    }
+};
+
 export const ProviderController = {
-    // Add controller methods here
     getProviderById,
     getAllProviders,
     getProviderOrders,
-    updateOrderStatusById
-    };
+    updateOrderStatusById,
+    applyToBecomeProvider,
+};
