@@ -48,7 +48,8 @@ const getReviews = async (req: Request, res: Response) => {
 
 const getReviewById = async (req: Request, res: Response) => {
     try {
-        const request = await ReviewService.getReviewById(parseInt(req.params.id));
+        const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+        const request = await ReviewService.getReviewById(parseInt(idParam));
         if (request === null) {
             return res.status(404).json({ message: "Review not found" });
         } else {
@@ -70,7 +71,8 @@ const getReviewById = async (req: Request, res: Response) => {
 
 const getReviewsByMeal = async (req: Request, res: Response) => {
     try {
-        const request = await ReviewService.getReviewsByMeal(req.params.mealId);
+        const mealIdParam = Array.isArray(req.params.mealId) ? req.params.mealId[0] : req.params.mealId;
+        const request = await ReviewService.getReviewsByMeal(mealIdParam);
         if (request.length === 0) {
             return res.status(404).json({ message: "No reviews found for this meal" });
         } else {
@@ -92,7 +94,8 @@ const getReviewsByMeal = async (req: Request, res: Response) => {
 
 const getReviewsByUser = async (req: Request, res: Response) => {
     try {
-        const request = await ReviewService.getReviewsByUser(req.params.userId);
+        const userIdParam = Array.isArray(req.params.userId) ? req.params.userId[0] : req.params.userId;
+        const request = await ReviewService.getReviewsByUser(userIdParam);
         if (request.length === 0) {
             return res.status(404).json({ message: "No reviews found for this user" });
         } else {
@@ -114,7 +117,8 @@ const getReviewsByUser = async (req: Request, res: Response) => {
 
 const updateReviewById = async (req: Request, res: Response) => {
     try {
-        const request = await ReviewService.updateReviewById(parseInt(req.params.id), req.body, req.user?.id);
+        const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+        const request = await ReviewService.updateReviewById(parseInt(idParam), req.body, req.user?.id);
         sendResponce(res, {
             statusCode: 200,
             success: true,
@@ -132,7 +136,8 @@ const updateReviewById = async (req: Request, res: Response) => {
 
 const deleteReviewById = async (req: Request, res: Response) => {
     try {
-        const request = await ReviewService.deleteReviewById(parseInt(req.params.id), req.user?.id);
+        const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+        const request = await ReviewService.deleteReviewById(parseInt(idParam), req.user?.id);
         sendResponce(res, {
             statusCode: 200,
             success: true,
@@ -163,7 +168,8 @@ const getMyReviews = async (req: Request, res: Response) => {
 
 const getReviewsByProvider = async (req: Request, res: Response) => {
     try {
-        const reviews = await ReviewService.getReviewsByProvider(req.params.providerId);
+        const providerIdParam = Array.isArray(req.params.providerId) ? req.params.providerId[0] : req.params.providerId;
+        const reviews = await ReviewService.getReviewsByProvider(providerIdParam);
         res.status(200).json({
             success: true,
             message: "Reviews retrieved successfully",

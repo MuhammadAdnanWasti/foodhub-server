@@ -36,7 +36,7 @@ const checkoutCart = async (req: Request, res: Response) => {
                 statusCode: 400,
                 success: false,
                 message: "Validation failed",
-                data: validationResult.error.errors
+                data: validationResult.error.issues
             });
         }
 

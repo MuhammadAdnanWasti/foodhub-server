@@ -6,8 +6,10 @@ const connectionString = `${process.env.DATABASE_URL}`
 
 const adapter = new PrismaPg({ 
   connectionString,
-  // Increase pool size for better connection handling
-  pool: { min: 1, max: 10 }
+  // Increase pool size for better connection handling (pg Pool options)
+  // 'pool' is not a recognized property on the adapter options; use max/min directly
+  max: 10,
+  min: 1,
 })
 
 const prisma = new PrismaClient({ 

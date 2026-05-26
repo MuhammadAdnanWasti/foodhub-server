@@ -1,8 +1,6 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
-import { AuthRoutes } from './modules/Auth/auth.route';
-import { MealRoutes } from './modules/Meal/meal.route';
-import { CategoriesRoutes } from './modules/Categories/categories.route';
+
 import router from './routes';
 import { notFound } from './middlewares/notFound';
 

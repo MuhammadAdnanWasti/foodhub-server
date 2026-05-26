@@ -127,7 +127,7 @@ const getProviderApplications = async (req: Request, res: Response) => {
 
 const approveProviderApplication = async (req: Request, res: Response) => {
     try {
-        const result = await AdminService.approveProviderApplication(req.params.id);
+        const result = await AdminService.approveProviderApplication(String(req.params.id));
         sendResponce(res, {
             statusCode: 200,
             success: true,
@@ -145,7 +145,7 @@ const approveProviderApplication = async (req: Request, res: Response) => {
 
 const rejectProviderApplication = async (req: Request, res: Response) => {
     try {
-        const result = await AdminService.rejectProviderApplication(req.params.id);
+        const result = await AdminService.rejectProviderApplication(String(req.params.id));
         sendResponce(res, {
             statusCode: 200,
             success: true,

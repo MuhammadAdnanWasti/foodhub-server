@@ -12,7 +12,7 @@ const createCategory= async (req: Request, res: Response) => {
             return sendResponce(res, {
                 statusCode: 400,
                 success: false,
-                message: validation.error.errors[0]?.message || "Validation failed",
+                message: validation.error.issues[0]?.message || "Validation failed",
                 data: {}
             });
         }
@@ -74,12 +74,13 @@ const updateCategory = async (req: Request, res: Response) => {
             return sendResponce(res, {
                 statusCode: 400,
                 success: false,
-                message: validation.error.errors[0]?.message || "Validation failed",
+                message: validation.error.issues[0]?.message || "Validation failed",
                 data: {}
             });
         }
 
-        const result = await CategoriesService.updateCategory(req.params.id, validation.data);
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+        const result = await CategoriesService.updateCategory(id, validation.data);
 
         sendResponce(res, {
             statusCode: 200,
@@ -100,7 +101,8 @@ const updateCategory = async (req: Request, res: Response) => {
 
 const deleteCategory = async (req: Request, res: Response) => {
     try {
-        const result = await CategoriesService.deleteCategory(req.params.id);
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+        const result = await CategoriesService.deleteCategory(id);
 
         sendResponce(res, {
             statusCode: 200,
