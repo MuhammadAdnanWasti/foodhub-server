@@ -8,11 +8,15 @@ import { PaymentController } from './modules/Payment/payment.controller';
 const app: Application = express();
 
 // Stripe webhook must use raw body — register BEFORE express.json()
-app.post(
-  '/webhook',
+const stripeWebhookHandlers = [
   express.raw({ type: 'application/json' }),
-  PaymentController.handleStripeWebhookEvent
-);
+  PaymentController.handleStripeWebhookEvent,
+];
+
+// /api/webhook — Stripe Dashboard endpoint on Vercel
+// /webhook — local dev (stripe listen --forward-to localhost:5000/webhook)
+app.post('/api/webhook', ...stripeWebhookHandlers);
+app.post('/webhook', ...stripeWebhookHandlers);
 
 app.use(express.json());
 
