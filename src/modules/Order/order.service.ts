@@ -1,33 +1,33 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { randomUUID } from "crypto";
+import Stripe from "stripe";
+
+import { envVars } from "../../config/env";
+import { stripe } from "../../config/stripe.config";
+import { OrderStatus, PaymentStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { DELIVERY_FEE } from "./order.constant";
 
 const createOrder = async (payLoad: any, userId: string, mealId: string) => {
-    // Validate mealId is provided
     if (!mealId) {
         throw new Error("Meal ID is required to create an order")
     }
 
-    // Validate user exists
     const user = await prisma.user.findUnique({
         where: { id: userId }
-    })  
+    })
     if (!user) {
         throw new Error("User not found")
     }
     const meal = await prisma.meals.findUnique({
         where: { id: mealId }
-    })  
+    })
     if (!meal) {
         throw new Error("Meal not found")
     }
 
-  
-
-    
-
-    // Create meal with AUTO-SET providerId and categoryId
     const result = await prisma.orders.create({
-        data: {  
+        data: {
             userId: user.id,
             providerId: meal.providerId,
             deliveryAddress: payLoad.deliveryAddress || "Not specified",
@@ -49,7 +49,7 @@ const createOrder = async (payLoad: any, userId: string, mealId: string) => {
             }
         }
     })
-    
+
     return result;
 }
 
@@ -65,7 +65,6 @@ interface CheckoutPayload {
 }
 
 const checkoutCart = async (payload: CheckoutPayload, userId: string) => {
-    // Validate user exists
     const user = await prisma.user.findUnique({
         where: { id: userId }
     })
@@ -73,7 +72,6 @@ const checkoutCart = async (payload: CheckoutPayload, userId: string) => {
         throw new Error("User not found")
     }
 
-    // Validate provider exists
     const provider = await prisma.providerProfiles.findUnique({
         where: { id: payload.providerId }
     })
@@ -81,7 +79,6 @@ const checkoutCart = async (payload: CheckoutPayload, userId: string) => {
         throw new Error("Provider not found")
     }
 
-    // Fetch all meals and validate they exist and belong to the same provider
     const mealIds = payload.cartItems.map(item => item.mealId)
     const meals = await prisma.meals.findMany({
         where: {
@@ -93,16 +90,14 @@ const checkoutCart = async (payload: CheckoutPayload, userId: string) => {
         throw new Error("One or more meals not found")
     }
 
-    // Verify all meals belong to the provided provider
     const allBelongToProvider = meals.every(meal => meal.providerId === payload.providerId)
     if (!allBelongToProvider) {
         throw new Error("All meals must belong to the same provider")
     }
 
-    // Calculate total price
     let totalPrice = 0
     const orderItemsData: any[] = []
-    
+
     payload.cartItems.forEach(item => {
         const meal = meals.find(m => m.id === item.mealId)
         if (meal) {
@@ -115,7 +110,6 @@ const checkoutCart = async (payload: CheckoutPayload, userId: string) => {
         }
     })
 
-    // Create order with order items in transaction
     const order = await prisma.orders.create({
         data: {
             userId,
@@ -141,7 +135,7 @@ const checkoutCart = async (payload: CheckoutPayload, userId: string) => {
     return order
 }
 
-const getOrders = async (userId:string) => {
+const getOrders = async (userId: string) => {
     const orders = await prisma.orders.findMany({
         where: {
             userId: userId
@@ -161,7 +155,7 @@ const getOrders = async (userId:string) => {
 
 const getOrderById = async (id: string, userId: string) => {
     const order = await prisma.orders.findUnique({
-        where: { id },      
+        where: { id },
         include: {
             user: true,
             provider: true,
@@ -172,22 +166,25 @@ const getOrderById = async (id: string, userId: string) => {
             }
         }
     });
-    
+
     if (order && order.userId !== userId) {
         throw new Error("You don't have permission to view this order")
     }
-    
+
     return order;
 }
+
 const cancelOrder = async (orderId: string, userId: string) => {
     const order = await prisma.orders.findUnique({ where: { id: orderId } });
     if (!order) throw new Error("Order not found");
     if (order.userId !== userId) throw new Error("You are not authorized to cancel this order");
-    if (order.status !== "PLACED") throw new Error("Only orders with status PLACED can be cancelled");
+    if (order.status !== OrderStatus.PLACED && order.status !== OrderStatus.PENDING_PAYMENT) {
+        throw new Error("Only orders with status PLACED or PENDING_PAYMENT can be cancelled");
+    }
 
     return prisma.orders.update({
         where: { id: orderId },
-        data: { status: "CANCELLED" },
+        data: { status: OrderStatus.CANCELLED },
         include: {
             orderItems: { include: { meal: true } },
             user: true,
@@ -196,12 +193,12 @@ const cancelOrder = async (orderId: string, userId: string) => {
     });
 };
 
-const checkoutCartFromDb = async (userId: string, deliveryAddress: string) => {
+const initiateStripeCheckout = async (userId: string, deliveryAddress: string) => {
     if (!deliveryAddress || deliveryAddress.trim().length < 5) {
         throw new Error("Delivery address must be at least 5 characters");
     }
 
-    const cart = await (prisma as any).cart.findUnique({
+    const cart = await prisma.cart.findUnique({
         where: { userId },
         include: {
             items: {
@@ -214,11 +211,10 @@ const checkoutCartFromDb = async (userId: string, deliveryAddress: string) => {
         throw new Error("Your cart is empty");
     }
 
-    const mealIds = cart.items.map((i: { mealId: string }) => i.mealId);
+    const mealIds = cart.items.map((item) => item.mealId);
     const meals = await prisma.meals.findMany({ where: { id: { in: mealIds } } });
 
-    // All meals must belong to same provider (enforced at add time, double-check here)
-    const providerIds = [...new Set(meals.map((m) => m.providerId))];
+    const providerIds = [...new Set(meals.map((meal) => meal.providerId))];
     if (providerIds.length !== 1) {
         throw new Error("All cart items must belong to the same restaurant");
     }
@@ -227,7 +223,7 @@ const checkoutCartFromDb = async (userId: string, deliveryAddress: string) => {
     let subtotal = 0;
     const orderItemsData: { mealId: string; quantity: number; unitPrice: number }[] = [];
 
-    cart.items.forEach((item: { mealId: string; quantity: number }) => {
+    cart.items.forEach((item) => {
         const meal = meals.find((m) => m.id === item.mealId);
         if (meal) {
             subtotal += meal.price * item.quantity;
@@ -240,28 +236,90 @@ const checkoutCartFromDb = async (userId: string, deliveryAddress: string) => {
     });
 
     const totalPrice = parseFloat((subtotal + DELIVERY_FEE).toFixed(2));
+    const placeholderSessionId = `pending_${randomUUID()}`;
 
-    return prisma.$transaction(async (tx) => {
-        const order = await tx.orders.create({
+    const { order, payment } = await prisma.$transaction(async (tx) => {
+        const createdOrder = await tx.orders.create({
             data: {
                 userId,
                 providerId,
                 deliveryAddress: deliveryAddress.trim(),
-                status: "PLACED",
+                status: OrderStatus.PENDING_PAYMENT,
                 totalPrice,
                 orderItems: { create: orderItemsData },
             },
             include: {
                 orderItems: { include: { meal: true } },
-                user: true,
-                provider: true,
             },
         });
 
-        await (tx as any).cartItem.deleteMany({ where: { cartId: cart.id } });
+        const createdPayment = await tx.payment.create({
+            data: {
+                amount: totalPrice,
+                orderId: createdOrder.id,
+                stripeSessionId: placeholderSessionId,
+                status: PaymentStatus.UNPAID,
+            },
+        });
 
-        return { order, deliveryFee: DELIVERY_FEE, subtotal };
+        return { order: createdOrder, payment: createdPayment };
     });
+
+    const lineItems = [
+        ...order.orderItems.map((item) => ({
+            price_data: {
+                currency: "usd",
+                product_data: {
+                    name: item.meal.name,
+                },
+                unit_amount: Math.round(item.unitPrice * 100),
+            },
+            quantity: item.quantity,
+        })),
+        {
+            price_data: {
+                currency: "usd",
+                product_data: {
+                    name: "Delivery Fee",
+                },
+                unit_amount: Math.round(DELIVERY_FEE * 100),
+            },
+            quantity: 1,
+        },
+    ];
+
+    const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        payment_method_types: ["card"],
+        line_items: lineItems,
+        metadata: {
+            orderId: order.id,
+            paymentId: payment.id,
+        },
+        payment_intent_data: {
+            metadata: {
+                orderId: order.id,
+                paymentId: payment.id,
+            },
+        },
+        success_url: `${envVars.STRIPE.SUCCESS_URL}?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: envVars.STRIPE.CANCEL_URL,
+    });
+
+    if (!session.url) {
+        throw new Error("Failed to create Stripe checkout session");
+    }
+
+    await prisma.payment.update({
+        where: { id: payment.id },
+        data: { stripeSessionId: session.id },
+    });
+
+    return {
+        checkoutUrl: session.url,
+        orderId: order.id,
+        paymentId: payment.id,
+    };
 };
 
 export const OrderService = {
@@ -270,5 +328,5 @@ export const OrderService = {
     getOrders,
     getOrderById,
     cancelOrder,
-    checkoutCartFromDb,
+    initiateStripeCheckout,
 };

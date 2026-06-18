@@ -138,11 +138,11 @@ const checkoutCartFromDb = async (req: Request, res: Response) => {
                 message: "Delivery address is required",
             });
         }
-        const result = await OrderService.checkoutCartFromDb(req.user?.id as string, deliveryAddress);
+        const result = await OrderService.initiateStripeCheckout(req.user?.id as string, deliveryAddress);
         sendResponce(res, {
             statusCode: 201,
             success: true,
-            message: "Order placed successfully",
+            message: "Checkout session created successfully",
             data: result,
         });
     } catch (error: any) {

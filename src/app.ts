@@ -3,12 +3,18 @@ import cors from 'cors';
 
 import router from './routes';
 import { notFound } from './middlewares/notFound';
+import { PaymentController } from './modules/Payment/payment.controller';
 
 const app: Application = express();
 
-// parsers
-app.use(express.json());
+// Stripe webhook must use raw body — register BEFORE express.json()
+app.post(
+  '/webhook',
+  express.raw({ type: 'application/json' }),
+  PaymentController.handleStripeWebhookEvent
+);
 
+app.use(express.json());
 
 app.use(cors({
   origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
@@ -20,13 +26,9 @@ app.use(cors({
 // application routes
 app.use('/', router);
 
-
-
-
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello from Apollo Gears World!');
 });
 
 app.use(notFound);
 export default app;
-    

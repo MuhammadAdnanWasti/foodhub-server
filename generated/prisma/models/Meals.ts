@@ -519,14 +519,6 @@ export type MealsUncheckedUpdateManyWithoutProviderNestedInput = {
   deleteMany?: Prisma.MealsScalarWhereInput | Prisma.MealsScalarWhereInput[]
 }
 
-export type FloatFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type MealsCreateNestedManyWithoutCategoryInput = {
   create?: Prisma.XOR<Prisma.MealsCreateWithoutCategoryInput, Prisma.MealsUncheckedCreateWithoutCategoryInput> | Prisma.MealsCreateWithoutCategoryInput[] | Prisma.MealsUncheckedCreateWithoutCategoryInput[]
   connectOrCreate?: Prisma.MealsCreateOrConnectWithoutCategoryInput | Prisma.MealsCreateOrConnectWithoutCategoryInput[]
